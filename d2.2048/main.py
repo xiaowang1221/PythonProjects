@@ -57,7 +57,7 @@ class Matrix2048():
 
     def matrix_move(self):
         """
-        移动合并
+
         :return:
         """
         pass
