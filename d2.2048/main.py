@@ -1,4 +1,7 @@
 import random
+import tkinter
+import tkinter.messagebox
+from tkinter import Label
 
 
 class Matrix2048:
@@ -127,13 +130,13 @@ class Window2048:
     """
     建立窗体GUI
     """
+
     def __init__(self, column: int = 4):
         self.init_setting(column)
         self.data = Matrix2048(column)
         self.root = self.init_root()
         self.t = 0  # 判断游戏结束时用
         self.main()
-
 
     def init_setting(self, column):
         """
@@ -194,13 +197,59 @@ class Window2048:
         窗口初始化
         :return:
         """
+        column = self.column
+        space_size = self.space_size
+        cell_size = self.cell_size
+
+        # 创建根窗口
+        root = tkinter.Tk()
+        root.title('2048')
+
+        # 根窗口尺寸设置
+        window_w = column * (space_size + cell_size) + space_size
+        window_h = window_w + cell_size + 2 * space_size
+        root.geometry(f'{window_w}x{window_h}')
+
+        # 顶栏
+        header_h = cell_size + space_size * 2
+        header = tkinter.Frame(root, height=header_h, width=window_w)
+        self.init_header(header)
+
+        # 棋盘
+        table = tkinter.Frame(root, height=window_w, width=window_w)
+        self.init_table(table)
+
+        return root
+
+    def init_header(self, header):
+        header.pack()
+
+    def init_table(self, table):
+        table.pack()
+        for row in range(self.column):
+            row_emts = []
+            for col in range(self.column):
+                label = Label(table, width=4, height=2, font=('Helvetica', 24, 'bold'), text='',
+                              relief='ridge', bg=self.style[0]['bg'], fg=self.style[0]['fg'])
+                label.grid(row=row, column=col, padx=self.space_size, pady=self.space_size)
+                row_emts.append(label)
+            self.emts.append(row_emts)
 
     def update_ui(self):
         """
         更新UI
         :return:
         """
-        pass
+        for i in range(self.column):
+            for j in range(self.column):
+                value = self.data.matrix[i][j]
+                style = self.style.get(value, self.style[2 ** 15])
+                self.emts[i][j].configure(
+                    text=str(value) if value != 0 else '',
+                    bg=style['bg'],
+                    fg=style['fg'],
+                    font=('Helvetica', style['fz'], 'bold')
+                )
 
     def key_event(self, event):
         """
@@ -208,18 +257,31 @@ class Window2048:
         :param event:键盘事件
         :return:
         """
-        pass
+        direction_keys = {
+            'Up': 'up', 'Down': 'down', 'Left': 'left', 'Right': 'right'
+        }
+        if event.keysym in direction_keys:
+            self.data.move(direction_keys[event.keysym])
+            self.update_ui()
+            if self.data.is_over():
+                print("Game Over!")
+                self.root.after(2000, self.reset_game)
 
     def reset_game(self):
         """
         重置游戏
         :return:
         """
-        pass
+        self.data.init()
+        self.update_ui()
 
     def main(self):
         """
         主程序
         :return:
         """
+        self.reset_game()
+        self.root.bind("<Key>", self.key_event)
+        self.root.mainloop()
 
+g = Window2048(4)
