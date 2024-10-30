@@ -206,8 +206,10 @@ class Window2048:
         root.title('2048')
 
         # 根窗口尺寸设置
-        window_w = column * (space_size + cell_size) + space_size
+        # window_w = column * (space_size + cell_size) + space_size
+        window_w = cell_size * (column + 1) + space_size * (column * 2 + 1)
         window_h = window_w + cell_size + 2 * space_size
+        print(column,space_size,cell_size)
         root.geometry(f'{window_w}x{window_h}')
 
         # 顶栏
